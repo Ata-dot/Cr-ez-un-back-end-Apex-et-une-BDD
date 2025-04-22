@@ -2,13 +2,13 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 04-12-2025
+ * @last modified on  : 04-22-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 /**
  * @description       : Classe de test pour le trigger CreateTripOnOpportunityWin
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
- * @last modified on  : 04-12-2025
+ * @last modified on  : 04-22-2025
 **/
 @isTest
 public class CreateTripOnOpportunityWinTest {
@@ -26,7 +26,6 @@ public class CreateTripOnOpportunityWinTest {
             CloseDate = System.today().addDays(30),
             AccountId = testAccount.Id,
             NumberOfParticipants__c = 10,
-            StartDate__c = Date.today(),
             EndDate__c = Date.today().addDays(7)
         );
         insert testOpp;
@@ -55,9 +54,9 @@ public class CreateTripOnOpportunityWinTest {
         Trip__c trip = createdTrips[0];
         System.assertEquals(testOpp.Id, trip.Opportunity__c, 'Le trip doit être lié à la bonne opportunité');
         System.assertEquals('Test Opportunity Trip', trip.Name, 'Le nom du trip doit être correct');
-        System.assertEquals('In progress', trip.Status__c, 'Le statut du trip doit être "In progress"');
+        System.assertEquals('To come', trip.Status__c, 'Le statut du trip doit être "To come"');
         System.assertEquals(10, trip.NumberOfParticipants__c, 'Le nombre de participants doit correspondre');
-        System.assertEquals(Date.today(), trip.StartDate__c, 'La date de début doit être aujourd’hui');
+        System.assertEquals(Date.today().addDays(1), trip.StartDate__c, 'La date de début doit être demain');
         System.assertEquals(Date.today().addDays(7), trip.EndDate__c, 'La date de fin doit être dans 7 jours');
     }
 }
