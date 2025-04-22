@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 04-12-2025
+ * @last modified on  : 04-22-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 trigger CreateTripOnOpportunityWin on Opportunity (after update, after insert) {
@@ -42,7 +42,7 @@ trigger CreateTripOnOpportunityWin on Opportunity (after update, after insert) {
                     !existingTrips.containsKey(opp.Id) &&
                     opp.NumberofParticipants__c != null
                 ) {
-                    Date tripStart = opp.StartDate__c != null ? opp.StartDate__c : Date.today();
+                    Date tripStart = opp.StartDate__c != null ? opp.StartDate__c : Date.today().addDays(1);
                     Date tripEnd = opp.EndDate__c != null ? opp.EndDate__c : tripStart.addDays(7);
 
                     TripManager.CreateTrip(
