@@ -2,7 +2,7 @@
  * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 04-11-2025
+ * @last modified on  : 04-22-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
 @isTest
@@ -10,6 +10,7 @@ private class CancelTripsBatchTest {
 
     @isTest
     static void testCancelTripsBatch() {
+         
         
         // Créer un voyage avec moins de 10 participants
         List<Trip__c> trips = new List<Trip__c>();
@@ -29,6 +30,7 @@ private class CancelTripsBatchTest {
         trip2.EndDate__c = Date.today().addDays(14);
         trip2.NumberOfParticipants__c = 15;  // Plus de 10 participants
         trip2.Status__c = 'To come';  // Statut "À venir"
+        
         
         trips.add(trip2);
         
@@ -57,3 +59,4 @@ private class CancelTripsBatchTest {
         System.assertEquals('To come', result[1].Status__c, 'Le statut du second voyage ne devrait pas être changé');
     }
 }
+
