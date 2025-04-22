@@ -1,59 +1,62 @@
 /**
- * @description       : Annule les voyages dont la date de début est dans 7 jours et qui ont moins de 10 participants.
+ * @description       : 
  * @author            : ChangeMeIn@UserSettingsUnder.SFDoc
  * @group             : 
- * @last modified on  : 04-17-2025
+ * @last modified on  : 04-22-2025
  * @last modified by  : ChangeMeIn@UserSettingsUnder.SFDoc
 **/
-public class CancelTripsBatch implements Database.Batchable<SObject> {
-    
-    public Database.QueryLocator start(Database.BatchableContext bc) {
-        Date targetDate = Date.today().addDays(7);
-        System.debug('[START] Date cible pour annuler les voyages : ' + targetDate);
+@isTest
+private class CancelTripsBatchTest {
 
-        String query = 'SELECT Id, StartDate__c, NumberOfParticipants__c, Status__c ' +
-                       'FROM Trip__c ' +
-                       'WHERE StartDate__c = :targetDate ' +
-                       'AND NumberOfParticipants__c < 10 ' +
-                       'AND Status__c != \'Cancelled\'';
-
-        System.debug('[START] Requête SOQL utilisée : ' + query);
+    @isTest
+    static void testCancelTripsBatch() {
+         
         
-        return Database.getQueryLocator(query);
-    }
-    
-    public void execute(Database.BatchableContext bc, List<Trip__c> scope) {
-        System.debug('[EXECUTE] Début du traitement - Nombre de voyages récupérés : ' + scope.size());
+        // Créer un voyage avec moins de 10 participants
+        List<Trip__c> trips = new List<Trip__c>();
+        
+        // Créer un voyage dont la date de début est dans 7 jours
+        Trip__c trip = new Trip__c();
+        trip.StartDate__c = Date.today().addDays(7); 
+        trip.EndDate__c = Date.today().addDays(14);
+        trip.NumberOfParticipants__c = 9;  // Moins de 10 participants
+        trip.Status__c = 'To come';  // Statut "À venir"
+        
+        trips.add(trip);
+        
+        // Créer un autre voyage, mais avec plus de 10 participants
+        Trip__c trip2 = new Trip__c();
+        trip2.StartDate__c = Date.today().addDays(7); 
+        trip2.EndDate__c = Date.today().addDays(14);
+        trip2.NumberOfParticipants__c = 15;  // Plus de 10 participants
+        trip2.Status__c = 'To come';  // Statut "À venir"
+        
+        
+        trips.add(trip2);
+        
+        // Insérer les voyages dans la base de données
+        insert trips;
+        
+        // Commencer le test
+        Test.startTest();
 
-        if (scope.isEmpty()) {
-            System.debug('[EXECUTE] Aucun voyage à traiter. Fin du batch pour ce scope.');
-            return;
-        }
+        // Exécution du batch
+        CancelTripsBatch batch = new CancelTripsBatch();
+        Database.executeBatch(batch, 200);  // Taille du lot (batch size)
 
-        for (Trip__c trip : scope) {
-            System.debug('[EXECUTE] Voyage à annuler - ID : ' + trip.Id + 
-                         ', StartDate : ' + trip.StartDate__c + 
-                         ', Participants : ' + trip.NumberOfParticipants__c + 
-                         ', Statut actuel : ' + trip.Status__c);
-            trip.Status__c = 'Cancelled';
-        }
-
-        try {
-            update scope;
-            System.debug('[EXECUTE] Voyages mis à jour avec succès : ' + scope);
-        } catch (DmlException e) {
-            System.debug('[ERROR] Erreur lors de la mise à jour des voyages : ' + e.getMessage());
-        }
-    }
-    
-    public void finish(Database.BatchableContext bc) {
-        System.debug('[FINISH] Batch CancelTripsBatch terminé avec succès.');
-
-        Datetime dt = Datetime.now().addMinutes(5);
-        String schTm = dt.format('s m H d M \'?\' yyyy');
-        System.debug('[FINISH] Planification de CancelTripsScheduler à : ' + schTm);
-
-        String jobId = System.schedule('Test Cancel Trip ' + schTm, schTm, new CancelTripsScheduler());
-        System.debug('[FINISH] Job CancelTripsScheduler planifié avec l\'ID : ' + jobId);
+        // Arrêter le test
+        Test.stopTest();  // S'assurer que l'exécution du batch est terminée avant d'effectuer les assertions
+        
+        // Récupérer les voyages après l'exécution du batch
+        List<Trip__c> result = [SELECT Id, Status__c FROM Trip__c WHERE Id IN :trips];
+        
+        // Vérifier que le premier voyage a été annulé
+        System.debug('Statut du voyage après le batch (voyage 1) : ' + result[0].Status__c);
+        System.assertEquals('Cancelled', result[0].Status__c, 'Le statut du voyage devrait être "Cancelled"');
+        
+        // Vérifier que le second voyage n’a pas été annulé
+        System.debug('Statut du voyage après le batch (voyage 2) : ' + result[1].Status__c);
+        System.assertEquals('To come', result[1].Status__c, 'Le statut du second voyage ne devrait pas être changé');
     }
 }
+
