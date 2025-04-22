@@ -7,7 +7,6 @@ Ce projet a pour objectif de mettre en place un système CRM sur Salesforce pour
 - `force-app-default/` : Code source pour Apex, LWC, objets personnalisés, et déclencheurs.
 - `tests/` : Tests unitaires pour chaque partie du code.
 - `documentation/` : Documentation de l'architecture et des fonctionnalités.
-- `configuration/` : Configuration de l'architecture et des fonctionnalités.
 
 ## Convention de nommage
 
